@@ -69,8 +69,12 @@ func main() {
 
 	go func() {
 		for device := range discoverChan {
-			fmt.Printf("IP: %s, Discovered device: %s, Application: %s, Version: %s\n",
-				device.IP, device.Device, device.Application, device.Version)
+			mac, ok := deviceMap[device.IP]
+			if !ok {
+				mac = "unknown"
+			}
+			fmt.Printf("IP: %s, MAC: %s, Discovered device: %s, Application: %s, Version: %s\n",
+				device.IP, mac, device.Device, device.Application, device.Version)
 		}
 	}()
 
