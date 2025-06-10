@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	"time"
 
 	"github.com/nubificus/go-akri/pkg/pb"
 	verify "github.com/nubificus/secure-http-discovery-handler/internal/verify"
+	"github.com/rs/zerolog/log"
 
 	"github.com/smirzaei/parallel"
 	"gopkg.in/yaml.v3"
@@ -57,21 +57,22 @@ func (d DiscoveryDetails) toIPList() ([]string, error) {
 }
 
 func Discovery(details string) ([]*pb.Device, error) {
-	log.Println("Discovery called with details:", details)
+	// log.Println("Discovery called with details:", details)
+	log.Info().Msgf("Discovery called with details: %s", details)
 
 	// Unmarshal the YAML string into a DiscoveryDetails struct
 	var discoveryDetails DiscoveryDetails
 	err := yaml.Unmarshal([]byte(details), &discoveryDetails)
 	if err != nil {
-		log.Println("Error unmarshalling discovery details:", err)
+		log.Error().Err(err).Msg("Failed to unmarshal discovery details")
 		return nil, err
 	}
-	log.Println("Unmarshalled discovery details:", discoveryDetails)
+	log.Info().Msgf("Unmarshalled discovery details: %+v", discoveryDetails)
 
 	// Convert the IP range to a list of IP addresses
 	ipAddresses, err := discoveryDetails.toIPList()
 	if err != nil {
-		log.Println("Error converting discovery details to IP list:", err)
+		log.Error().Err(err).Msg("Error converting discovery details to IP list")
 		return nil, err
 	}
 
@@ -101,7 +102,7 @@ func Discovery(details string) ([]*pb.Device, error) {
 		}
 	}
 	if len(discoveredDevices) == 0 {
-		log.Println("No devices discovered")
+		log.Info().Msg("No devices discovered")
 	}
 	return discoveredDevices, nil
 }
@@ -121,41 +122,41 @@ func scanDevice(ip string, expected string, secure bool) Device {
 	resp, err := client.Get(url)
 	if err != nil {
 		// TODO: Use log levels
-		// log.Printf("Error fetching %s: %v\n", url, err)
+		log.Debug().Err(err).Msgf("Error fetching %s", url)
 		return dev
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Error reading response body from %s: %v\n", url, err)
+		log.Error().Err(err).Msgf("Error reading response body from %s", url)
 		return dev
 	}
 
 	var deviceInfo DeviceInfo
 	err = json.Unmarshal(body, &deviceInfo)
 	if err != nil {
-		log.Printf("Error parsing JSON from %s: %v\n", url, err)
+		log.Error().Err(err).Msgf("Error parsing JSON from %s", url)
 		return dev
 	}
 
 	if deviceInfo.Application != expected {
-		log.Printf("Device %s does not match expected application type: %s\n", ip, deviceInfo.Application)
+		log.Info().Msgf("Device %s does not match expected application type: %s", ip, deviceInfo.Application)
 		return dev
 	}
 
 	if secure {
 		trusted, err := verify.VerifyDevice(ip, AttestationServer)
 		if err != nil {
-			log.Printf("Error verifying device %s: %v\n", ip, err)
+			log.Info().Err(err).Msgf("Error verifying device %s", ip)
 			return dev
 		}
 		if !trusted {
-			log.Printf("Device %s is not trusted\n", ip)
+			log.Info().Msgf("Device %s is not trusted", ip)
 			return dev
 		}
 	}
 	dev.Discovered = true
 	dev.Info = deviceInfo
-	log.Printf("Discovered device %s: %+v\n", ip, deviceInfo)
+	log.Info().Msgf("Discovered device %s: %+v", ip, deviceInfo)
 	return dev
 }
