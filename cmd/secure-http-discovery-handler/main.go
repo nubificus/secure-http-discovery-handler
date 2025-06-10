@@ -15,6 +15,26 @@ func init() {
 }
 
 func main() {
-	app := akri.NewApp(Discovery, akri.WithLogLevel(akri.TraceLevel))
+	log_level := os.Getenv("LOG_LEVEL")
+	var logLevel akri.LogLevel
+	switch log_level {
+	case "trace":
+		logLevel = akri.TraceLevel
+	case "debug":
+		logLevel = akri.DebugLevel
+	case "info":
+		logLevel = akri.InfoLevel
+	case "warn":
+		logLevel = akri.WarnLevel
+	case "error":
+		logLevel = akri.ErrorLevel
+	case "fatal":
+		logLevel = akri.FatalLevel
+	case "panic":
+		logLevel = akri.PanicLevel
+	default:
+		logLevel = akri.InfoLevel
+	}
+	app := akri.NewApp(Discovery, akri.WithLogLevel(logLevel))
 	app.Run()
 }
