@@ -1,7 +1,7 @@
 CONTAINER_TOOL ?= docker
 USER_ID := $(shell id -u)
 GROUP_ID := $(shell id -g)
-TAG := $(shell git describe --dirty --long --always)
+TAG ?= $(shell git describe --dirty --long --always)
 PLATFORMS ?= linux/arm64,linux/amd64
 
 .PHONY: build clean verify-tool
