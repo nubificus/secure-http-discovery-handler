@@ -122,7 +122,7 @@ func scanDevice(ip string, expected string, secure bool) Device {
 	resp, err := client.Get(url)
 	if err != nil {
 		// TODO: Use log levels
-		log.Debug().Err(err).Msgf("Error fetching %s", url)
+		log.Trace().Err(err).Msgf("Error fetching %s", url)
 		return dev
 	}
 	defer resp.Body.Close()
@@ -147,7 +147,7 @@ func scanDevice(ip string, expected string, secure bool) Device {
 	if secure {
 		trusted, err := verify.VerifyDevice(ip, AttestationServer)
 		if err != nil {
-			log.Info().Err(err).Msgf("Error verifying device %s", ip)
+			log.Error().Err(err).Msgf("Error verifying device %s", ip)
 			return dev
 		}
 		if !trusted {
