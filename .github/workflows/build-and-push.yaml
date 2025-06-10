@@ -23,7 +23,7 @@ env:
   # NOTE: We assume that a project named after the repo owner exists in the
   # registry. The image will be uploaded as <repo_name> under the <repo_owner>
   # project.
-  REGISTRY_IMAGE: ${{ github.event.inputs.registry || 'harbor.nbfc.io' }}/nubificus/http-discovery-handler
+  REGISTRY_IMAGE: ${{ github.event.inputs.registry || 'harbor.nbfc.io' }}/nubificus/secure-http-discovery-handler
   RUNNER_ARCH_MAP: '[{"amd64":"x86_64", "arm64":"aarch64", "arm":"armv7l"}]'
 
 jobs:
