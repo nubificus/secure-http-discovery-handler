@@ -101,9 +101,24 @@ func Discovery(details string) ([]*pb.Device, error) {
 			})
 		}
 	}
+
+	var logMessage string
 	if len(discoveredDevices) == 0 {
-		log.Info().Msg("No devices discovered")
+		logMessage = "No devices discovered"
+	} else {
+		var i int
+		logMessage = ""
+		for _, device := range resultIPs {
+			if !device.Discovered {
+				continue
+			}
+			line := fmt.Sprintf("%d: %s - %s - %s@%s", i, device.Hostname, device.Info.Device, device.Info.Application, device.Info.Version)
+			logMessage += line + ", "
+			i++
+		}
 	}
+
+	log.Info().Msgf("Discovered devices: %s", logMessage)
 	return discoveredDevices, nil
 }
 
