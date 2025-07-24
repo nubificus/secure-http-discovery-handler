@@ -16,7 +16,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const maxConcurrency = 10
+const maxConcurrency = 5
 
 type Device struct {
 	Hostname   string

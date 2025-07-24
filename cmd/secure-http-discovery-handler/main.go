@@ -35,6 +35,6 @@ func main() {
 	default:
 		logLevel = akri.InfoLevel
 	}
-	app := akri.NewApp(Discovery, akri.WithLogLevel(logLevel))
+	app := akri.NewApp(Discovery, akri.WithLogLevel(logLevel), akri.WithDiscoverSleep(10))
 	app.Run()
 }
